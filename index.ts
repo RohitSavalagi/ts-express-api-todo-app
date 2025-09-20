@@ -5,20 +5,29 @@ import todoRouter from "./src/routes/todos.route";
 import { errorHandler } from "./src/middlewares/error-handler";
 import morgan from "morgan";
 import logger from "./src/utils/error.logger";
-import coros from "cors";
+import cors from "cors";
+import userRouter from "./src/routes/user.route";
+import { authenticate } from "./src/middlewares/auth-handler";
 
 const app = express();
 
-app.use(express.json());
-app.use(coros());
 app.use(
-  morgan("tiny", {
-    stream: {
-      write: (message) => logger.http(message.trim()),
-    },
+  cors({
+    origin: "http://localhost:5000",
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true, // if sending cookies
   })
 );
+
+// Express JSON parser
+app.use(express.json());
+
+// Routes
 app.use("/todos", todoRouter);
+app.use("/user", userRouter);
+
+// Error handler
 app.use(errorHandler);
 
 app.get("/", (req: Request, res: Response) => {
