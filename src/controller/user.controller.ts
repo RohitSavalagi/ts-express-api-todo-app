@@ -9,6 +9,7 @@ export const registerUser = async (
 ): Promise<void> => {
   const { userName, password } = req.body;
 
+  // === Validate userName ===
   if (
     !userName ||
     typeof userName !== "string" ||
@@ -18,23 +19,36 @@ export const registerUser = async (
     return;
   }
 
-  if (!password || typeof password !== "string" || password.length < 8) {
+  // === Validate password ===
+  if (!password || typeof password !== "string" || password.length < 6) {
     res
       .status(400)
       .json({ error: "Password must be at least 6 characters long" });
     return;
   }
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  try {
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = new User({
-    userName: userName.trim(),
-    password: hashedPassword,
-  });
+    // Create user
+    const user = new User({
+      userName: userName.trim(),
+      password: hashedPassword,
+    });
 
-  user.save();
+    await user.save(); // Important: wait for save to complete
 
-  res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({ message: "User registered successfully" });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      // Duplicate username error from MongoDB
+      res.status(409).json({ error: "Username already exists" });
+    } else {
+      console.error("Error registering user:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  }
 };
 
 export const loginUser = async (
