@@ -3,11 +3,8 @@ import express, { Request, Response } from "express";
 import mongoose from "mongoose";
 import todoRouter from "./src/routes/todos.route";
 import { errorHandler } from "./src/middlewares/error-handler";
-import morgan from "morgan";
-import logger from "./src/utils/error.logger";
 import cors from "cors";
 import userRouter from "./src/routes/user.route";
-import { authenticate } from "./src/middlewares/auth-handler";
 
 const app = express();
 
