@@ -8,17 +8,18 @@ import userRouter from "./src/routes/user.route";
 
 const app = express();
 
+app.use(express.json());
+
 app.use(
   cors({
-    origin: "http://localhost:5000",
+    origin: "https://bespoke-otter-cd8dbc.netlify.app", // no trailing slash
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
-    credentials: true, // if sending cookies
+    credentials: true,
   })
 );
 
 // Express JSON parser
-app.use(express.json());
 
 // Routes
 app.use("/todos", todoRouter);
