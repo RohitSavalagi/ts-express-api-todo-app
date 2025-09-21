@@ -2,14 +2,18 @@ import { NextFunction, Request, Response } from "express";
 import { Todo } from "../models/todo.model";
 import mongoose from "mongoose";
 import logger from "../utils/error.logger";
+import { AuthRequest } from "../middlewares/auth-handler";
 
 export const getTodos = async (
-    req: Request, 
-    res: Response,
-    next: NextFunction,
+  req: Request,
+  res: Response,
+  next: NextFunction
 ): Promise<void> => {
   try {
-    const todos = await Todo.find({});
+    const authReq = req as AuthRequest;
+    const userId = authReq.userId;
+
+    const todos = await Todo.find({ userId });
     res.status(200).json(todos);
   } catch (err) {
     logger.error("Error fetching todos:", { error: err });
@@ -24,13 +28,16 @@ export const getTodoById = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const authReq = req as AuthRequest; // cast to your custom type
+    const userId = authReq.userId;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({ error: "Invalid todo ID format" });
       return;
     }
 
-    const foundTodo = await Todo.findById(id);
+    // Find the todo that belongs to this user
+    const foundTodo = await Todo.findOne({ _id: id, userId });
 
     if (!foundTodo) {
       res.status(404).json({ error: "Todo not found" });
@@ -45,11 +52,13 @@ export const getTodoById = async (
 };
 
 export const createTodo = async (
-  req: Request,
+  req: Request<{}, { title: string }>, // req.body has a 'title'
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
+    const authReq = req as AuthRequest; // cast to your custom type
+    const userId = authReq.userId; // get user ID
     const { title } = req.body;
 
     if (!title || typeof title !== "string") {
@@ -68,6 +77,7 @@ export const createTodo = async (
     const newTodo = await Todo.create({
       title: trimmedTitle,
       completed: false,
+      userId, // associate todo with the user
     });
 
     res.status(201).json(newTodo);
@@ -87,12 +97,14 @@ export const createTodo = async (
 };
 
 export const updateTodo = async (
-  req: Request<{ id: string }>,
+  req: Request<{ id: string }, { title?: string; completed?: boolean }>,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const authReq = req as AuthRequest; // cast to your custom type
+    const userId = authReq.userId; // authenticated user ID
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({ error: "Invalid Todo ID format" });
@@ -123,13 +135,15 @@ export const updateTodo = async (
       return;
     }
 
-    const updatedTodo = await Todo.findByIdAndUpdate(id, updates, {
-      new: true,
-      runValidators: true,
-    });
+    // Update only the todo that belongs to this user
+    const updatedTodo = await Todo.findOneAndUpdate(
+      { _id: id, userId },
+      updates,
+      { new: true, runValidators: true }
+    );
 
     if (!updatedTodo) {
-      res.status(404).json({ error: "Todo not found" });
+      res.status(404).json({ error: "Todo not found or not owned by user" });
       return;
     }
 
@@ -153,20 +167,23 @@ export const deleteTodo = async (
 ): Promise<void> => {
   try {
     const { id } = req.params;
+    const authReq = req as AuthRequest; // cast to your custom type
+    const userId = authReq.userId;
 
     if (!mongoose.Types.ObjectId.isValid(id)) {
       res.status(400).json({ error: "Invalid Todo ID format" });
       return;
     }
 
-    const deletedTodo = await Todo.findByIdAndDelete(id);
+    // Delete only the todo that belongs to this user
+    const deletedTodo = await Todo.findOneAndDelete({ _id: id, userId });
 
     if (!deletedTodo) {
-      res.status(404).json({ error: "Todo not found" });
+      res.status(404).json({ error: "Todo not found or not owned by user" });
       return;
     }
 
-    res.status(204).send();
+    res.status(204).send(); // No content
   } catch (err) {
     logger.error("Error deleting todo", { error: err });
     next(err);

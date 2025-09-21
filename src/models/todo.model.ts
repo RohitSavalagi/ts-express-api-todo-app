@@ -1,22 +1,27 @@
 // Each schema maps to a MongoDB collection and defines the shape of the documents within that collection
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const { Schema } =  mongoose;
+const { Schema } = mongoose;
 
 const TodoSchema = new Schema(
-    {
-        title: { 
-            type: String,
-            required: [true, 'Please enter a title'],
-        },
-        completed: { 
-            type: Boolean,
-            default: false,
-        },
+  {
+    title: {
+      type: String,
+      required: [true, "Please enter a title"],
     },
-    {
-        timestamps: true,
-    }
+    completed: {
+      type: Boolean,
+      default: false,
+    },
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
 
-export const Todo = mongoose.model('Todo', TodoSchema);
+export const Todo = mongoose.model("Todo", TodoSchema);
