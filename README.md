@@ -57,7 +57,7 @@ CORS enabled
 
 🛠️ Installation & Setup
 1. Clone Repository
-git clone https://github.com/your-username/todo-backend.git
+git clone https://github.com/RohitSavalagi/ts-express-api-todo-app
 cd todo-backend
 
 2. Install Dependencies
@@ -69,7 +69,7 @@ Create a .env file in the root:
 
 PORT=4000
 MONGO_URI=mongodb://127.0.0.1:27017/todoDB
-JWT_SECRET=your_jwt_secret_key
+JWT_SECRET=123123
 
 4. Start Development Server
 npm run dev
