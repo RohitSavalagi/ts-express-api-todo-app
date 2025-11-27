@@ -1,5 +1,4 @@
-To-Do App Backend (TypeScript + Express + MongoDB + JWT Auth)
-
+**To-Do App Backend (TypeScript + Express + MongoDB + JWT Auth)**
 This is the backend service for the Full-Stack To-Do Application, built using TypeScript, Node.js, Express, and MongoDB.
 It provides APIs for user authentication, authorization, and CRUD operations for To-Dos.
 
@@ -56,25 +55,6 @@ dotenv
 
 CORS enabled
 
-Project Structure
-/src
- ├── config/
- │   └── db.ts              # MongoDB connection
- ├── controllers/
- │   ├── auth.controller.ts # Signup/Login logic
- │   └── todo.controller.ts # To-Do CRUD logic
- ├── middleware/
- │   └── auth.middleware.ts # JWT validation
- ├── models/
- │   ├── user.model.ts      # User schema
- │   └── todo.model.ts      # Todo schema
- ├── routes/
- │   ├── auth.routes.ts     # /api/auth/
- │   └── todo.routes.ts     # /api/todos/
- ├── utils/
- │   └── token.ts           # JWT helpers
- ├── app.ts                 # Express app config
- └── server.ts              # Server entrypoint
 🛠️ Installation & Setup
 1. Clone Repository
 git clone https://github.com/your-username/todo-backend.git
